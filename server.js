@@ -33,7 +33,20 @@ app.use(express.static('public'));
 //
 // ─────────────────────────────────────────────────────────────
 app.post('/cadastrar', (req, res) => {
-  // seu código aqui
+  const { nome, email, telefone, servico } = req.body;
+
+  if (!nome || !email || !telefone || !servico) {
+    return res.status(400).json({ mensagem: 'Todos os campos são obrigatórios.' });
+  }
+
+  const sql = 'INSERT INTO tutores (nome, email, telefone, servico) VALUES (?, ?, ?, ?)';
+
+  db.run(sql, [nome, email, telefone, servico], function (err) {
+    if (err) {
+      return res.status(500).json({ mensagem: 'Erro ao salvar cadastro.' });
+    }
+    res.status(201).json({ mensagem: 'Cadastro realizado com sucesso!' });
+  });
 });
 
 
@@ -57,7 +70,12 @@ app.post('/cadastrar', (req, res) => {
 //
 // ─────────────────────────────────────────────────────────────
 app.get('/listar', (req, res) => {
-  // seu código aqui
+  db.all('SELECT * FROM tutores', (err, rows) => {
+    if (err) {
+      return res.status(500).json({ mensagem: 'Erro ao buscar registros.' });
+    }
+    res.json(rows);
+  });
 });
 
 
